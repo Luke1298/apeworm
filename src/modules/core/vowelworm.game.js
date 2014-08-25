@@ -121,14 +121,15 @@ window.VowelWorm.Game = function( options ) {
       return null;
     }
 
-    var position = worm.getMFCCs({
+    var mfccs = worm.getMFCCs({
       minFreq: game.minHz,
       maxFreq: game.maxHz,
       filterBanks: game.fb,
       fft: buffer
     });
     
-    if(position.length) {
+    if(mfccs.length) {
+      var position = window.VowelWorm.Normalization.mfcc(mfccs, game.fb, game.minHz, game.maxHz);
       var x = position[1];
       var y = position[2];
 

@@ -190,7 +190,7 @@ VowelWorm.Normalization = {
     var stats=VowelWorm.Normalization.mfccStdev[filterbanks][minfreq][maxfreq];
     return mfccs.map(function(coefficient, index){
       var a = 0.95;
-      (coefficient-stats[index].average)/stats[index].stdev * Math.pow(a,index);
+      return (coefficient-stats[index].average)/stats[index].stdev * Math.pow(a,index);
     });
   },
 
@@ -203,7 +203,7 @@ VowelWorm.Normalization = {
    * console.log(data.stdev);
    * @const
    */
-  mfccStdDev: {
+  mfccStdev: {
     10: {// filter banks
       300: { // min freq
         8000:  [{average:-6.267492912959177,stdev:0.7940901613185211},{average:-1.3233585934176049,stdev:0.17641724957578878},{average:-0.25789978949044,stdev:0.20394512554650687},{average:-0.9383653127888486,stdev:0.20887477962778034},{average:0.4511073337686171,stdev:0.14778778901705894},{average:-0.7327618149269095,stdev:0.24570745627628943},{average:0.10864150368241898,stdev:0.0535231250195058},{average:-0.5272850062652689,stdev:0.052032496613113446},{average:0.07188283996897643,stdev:0.06364738438355187},{average:-0.17464590661698123,stdev:0.07113255140970973}]
