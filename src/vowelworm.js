@@ -169,6 +169,46 @@ VowelWorm.Normalization = {
       formant = 1;
     }
     return 26.81/(1+(1960/formant)) - 0.53;
+  },
+  /**
+   * Normalizes the MFCCs based on the standard deviation and average
+   * for MFCCs found using the phoneme i for six twenty-something year olds.
+   * This is based on the response given by pichenettes at 
+   * {@link http://dsp.stackexchange.com/a/16112/10722}.
+   * This requires that the given number of filter banks, minimum frequency,
+   * and maximum frequency all match the precomputed tables we have. See {@link
+   * VowelWorm.Normalization.mfccStdev} for the present values.
+   * @param {Array.<number>} mfccs The MFCCs to normalize
+   * @param {number} filterbanks The number of filter banks used in the calculation
+   * @param {number} minfreq The number used as the minimum frequency when getting MFCCs
+   * @param {number} maxfreq The number used as the maximum frequency when getting MFCCs
+   * @throws Error if the parameters passed don't align with what is precomputed
+   * in {@link VowelWorm.Normalization.mfccStdev}
+   * @return {Array.<number>} The noramlized MFCCs
+   */
+  mfcc: function(mfccs, filterbanks, minfreq, maxfreq) {
+    var stats=VowelWorm.Normalization.mfccStdev[filterbanks][minfreq][maxfreq];
+    return mfccs.map(function(coefficient, index){
+      var a = 0.95;
+      (coefficient-stats[index].average)/stats[index].stdev * Math.pow(a,index);
+    });
+  },
+
+  /**
+   * Precomputed table of averages and standard deviations for
+   * {@link VowelWorm.Normalization.mfcc}. Organized like this:
+   * @example
+   * var data = mfccStdev[filterBanks][minFreq][maxFreq];
+   * console.log(data.average);
+   * console.log(data.stdev);
+   * @const
+   */
+  mfccStdDev: {
+    10: {// filter banks
+      300: { // min freq
+        8000:  [{average:-6.267492912959177,stdev:0.7940901613185211},{average:-1.3233585934176049,stdev:0.17641724957578878},{average:-0.25789978949044,stdev:0.20394512554650687},{average:-0.9383653127888486,stdev:0.20887477962778034},{average:0.4511073337686171,stdev:0.14778778901705894},{average:-0.7327618149269095,stdev:0.24570745627628943},{average:0.10864150368241898,stdev:0.0535231250195058},{average:-0.5272850062652689,stdev:0.052032496613113446},{average:0.07188283996897643,stdev:0.06364738438355187},{average:-0.17464590661698123,stdev:0.07113255140970973}]
+      }
+    }
   }
 };
 

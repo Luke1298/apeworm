@@ -9,9 +9,49 @@ document.getElementById("video_button").addEventListener("click",usevideo,false)
 document.getElementById("mic_button").addEventListener("click",usemic,false);
 
 var game = new window.VowelWorm.Game({element: graphs_element});
+var worms = [];
+
+function getAveragesAndStdDev() {
+  var filterBanks = 10;
+  // thanks to zertosh at http://stackoverflow.com/a/13735425/390977
+  var mfccs_totals = new Array(filterBanks+1).join('0').split('').map(parseFloat);
+  var mfccs = [];
+  worms.forEach(function(worm){
+    var mfcc = worm.getMFCCs({
+      minFreq: 300,
+      maxFreq: 8000,
+      filterBanks: filterBanks
+    });
+    mfccs.push(mfcc);
+    mfcc.forEach(function(mfcc, index) {
+      mfccs_totals[index] += mfcc;
+    });
+  });
+  var mfcc_averages = mfccs_totals.map(function(mfcc_total){
+    return mfcc_total/worms.length;
+  });
+  var variances = new Array(filterBanks+1).join('0').split('').map(parseFloat);
+  mfccs.forEach(function(mfcc) {
+    mfcc.forEach(function(coefficient, index) {
+      variances[index] += Math.pow(coefficient-mfcc_averages[index],2);
+    });
+  });
+  var stdevs = [];
+
+  variances = variances.map(function(variance) {
+    return variance/(worms.length-1);
+  });
+  stdevs = variances.map(function(variance) {
+    return Math.sqrt(variance);
+  });
+  var response = [];
+  for(var i = 0; i<filterBanks; i++) {
+    response[i] ={average: mfcc_averages[i], stdev: stdevs[i]};
+  };
+  return response;
+};
 
 function usemedia() {
-  var worms = [];
   var audio_els = document.getElementsByClassName('media');
   
   var audios_loaded = 0;
