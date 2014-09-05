@@ -15,11 +15,11 @@ window.VowelWorm.Game = function( options ) {
   var game = this;
   game.width = options.width || 700;
   game.height = options.height || 500;
-  game.x1 = .2;
+  game.x1 = 0.2;
   game.x2 = 2;
   game.y1 = 0.9;
   game.y2 = 1.8;
-  
+
   game.minHz = 0;
   game.maxHz = 8000;
   game.fb = 40;
@@ -49,8 +49,8 @@ window.VowelWorm.Game = function( options ) {
    * @name ipa
    */
   var ipaEnabled = true;
- 
-  var ipaChart = new PIXI.DisplayObjectContainer();  
+
+  var ipaChart = new PIXI.DisplayObjectContainer();
 
   /**
    * Begins animation of worms
@@ -88,7 +88,7 @@ window.VowelWorm.Game = function( options ) {
 
       if(coords!==null){
         var doRender = true;
-        
+
         var x = coords.x;
         var y = coords.y;
 
@@ -99,10 +99,10 @@ window.VowelWorm.Game = function( options ) {
         circle.scale = new PIXI.Point(.8,.8);
 
         circles.push(circle);
-        
+
         game._stage.addChild(circle);
       }
-      current_color = getNextColor(current_color);  
+      current_color = getNextColor(current_color);
     });
     fadeOldCircles();
     game._renderer.render(game._stage);
@@ -120,7 +120,7 @@ window.VowelWorm.Game = function( options ) {
           return;
         }
         ipaEnabled = bool;
-        
+
         if(ipaEnabled) {
           game._stage.addChild(ipaChart);
         }
@@ -132,7 +132,7 @@ window.VowelWorm.Game = function( options ) {
       }
     }
   });
-  
+
   var getCoords = function(worm){
     var buffer = worm.getFFT();
 
@@ -146,19 +146,19 @@ window.VowelWorm.Game = function( options ) {
       filterBanks: game.fb,
       fft: buffer
     });
-    
+
     if(mfccs.length) {
-      mfccs = mfccs.slice(0,game.coefficients);
-      var position = VowelWorm.normalize(mfccs, VowelWorm.Normalization.regression);
-      if(position.length) {
-        var coords = adjustXAndY(position[0],position[1]);
-        return coords;
-      }
+      var coefficients = mfccs.slice(0,game.coefficients);
+      coefficients[0] = 1;
+      var y = window.VowelWorm.Normalization.regression(coefficients, window.VowelWorm._MFCC_WEIGHTS[game.coefficients].height_no_f0);
+      var x = window.VowelWorm.Normalization.regression(coefficients, window.VowelWorm._MFCC_WEIGHTS[game.coefficients].backness);
+      var coords = adjustXAndY(x,y);
+      return coords;
     }
     return null;
   };
-  
-  var adjustXAndY = function(x,y){    
+
+  var adjustXAndY = function(x,y){
     var xStart = game.x1;
     var xEnd = game.x2;
     var yStart = game.y1;
@@ -169,7 +169,7 @@ window.VowelWorm.Game = function( options ) {
 
     var adjustedX = (x-xStart)*xDist;
     var adjustedY = game.height-(y-yStart)*yDist;
-    
+
     return {x:adjustedX,y:adjustedY};
   };
 
@@ -193,9 +193,9 @@ window.VowelWorm.Game = function( options ) {
       var circles = container.circles;
       for(var i=0; i<circles.length; i++){
         var obj = circles[i];
-        
+
         obj.alpha = obj.alpha - .2;
-        
+
         if(obj.alpha <= 0){
           game._stage.removeChild(obj);
           circles.splice(i, 1);
@@ -221,7 +221,7 @@ window.VowelWorm.Game = function( options ) {
     new_color = parseInt(new_color,16);
     return new_color;
   };
- 
+
   /**
    * Fills the IPA Chart. A constructor helper method.
    */
@@ -261,7 +261,7 @@ window.VowelWorm.Game = function( options ) {
   if(ipaEnabled) {
     game._stage.addChild(ipaChart);
   }
-  
+
   if(options.worms) {
     if(options.worms instanceof Array) {
       options.worms.forEach(function(worm) {
