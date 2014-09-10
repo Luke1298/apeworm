@@ -15,10 +15,10 @@ window.VowelWorm.Game = function( options ) {
   var game = this;
   game.width = options.width || 700;
   game.height = options.height || 500;
-  game.x1 = 0.2;
-  game.x2 = 2;
-  game.y1 = 0.9;
-  game.y2 = 1.8;
+  game.x1 = 0.92;
+  game.x2 = 1.0;
+  game.y1 = 1.11;
+  game.y2 = 1.2;
 
   game.minHz = 0;
   game.maxHz = 8000;

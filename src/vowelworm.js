@@ -1,3 +1,4 @@
+//http://cs142tools.cs.byu.edu/dailyQuizzes.php
 (function(numeric){
 "use strict";
 
@@ -135,13 +136,13 @@ VowelWorm._MFCC_WEIGHTS = {
       1.104270,  0.120389,  0.271996,   0.246571, 0.029848, -0.489273, -0.734283,
       -0.796145, -0.441830, -0.033330,  0.415667, 0.341943, 0.380445, 0.260451,
       0.092989,  -0.161122, -0.173544, -0.015523, 0.251668, 0.022534, 0.054093,
-      0.005430,  -0.035820, -0.057551,  0.161558,                      
+      0.005430,  -0.035820, -0.057551,  0.161558,
     ]),
     backness: new Float32Array([
       0.995437, 0.540693, 0.121922, -0.585859, -0.443847, 0.170546, 0.188879,
       -0.306358, -0.308599, -0.212987, 0.012301, 0.574838, 0.681862, 0.229355,
       -0.222245, -0.222203, -0.129962, 0.329717, 0.142439, -0.132018, 0.103092,
-      0.052337, -0.034299, -0.041558, 0.141547  
+      0.052337, -0.034299, -0.041558, 0.141547
     ])
   }
 };
@@ -234,7 +235,7 @@ VowelWorm.Normalization = {
  * @license
  *
  * VowelWorm.decibelsToLinear licensed under the following:
- * 
+ *
  * Copyright (C) 2010, Google Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -264,7 +265,7 @@ VowelWorm.Normalization = {
  * Returns the linear magnitude of the given decibels value.
  * @param {number} dB the value in dB to convert
  * @return {number} the linear magnitude
- * 
+ *
  * @TODO — If we can find a generic representation somewhere of this algorithm,
  * we can remove this license
  * @public
@@ -289,7 +290,7 @@ VowelWorm.decibelsToLinear = function(dB) {
  * @see {@link VowelWorm.HANNING_SHIFT}
  * @param {Array.<number>} vals The values to change
  * @param {number} window_size the size of the window
- * @return {Array.<number>} the new values 
+ * @return {Array.<number>} the new values
  * @memberof VowelWorm
  */
 VowelWorm.hann = function hann(vals, window_size) {
@@ -391,7 +392,7 @@ VowelWorm.savitzkyGolay = function savitzkyGolay(y, window_size, order) {
  * @param {Array.<number>} y
  * @return {Array.<number>}
  * @memberof VowelWorm
- * 
+ *
  */
 VowelWorm.convolve = function convolve(m, y) {
   var result = new Array(),
@@ -459,7 +460,7 @@ VowelWorm.REMOTE_URL = 4;
 
 /**
  * @license
- * 
+ *
  * VowelWorm._toFrequency method developed with help from kr1 at
  * {@link http://stackoverflow.com/questions/14789283/what-does-the-fft-data-in-the-web-audio-api-correspond-to}
  */
@@ -611,7 +612,7 @@ function concatenate(args) {
 function flipArray(y) {
  var p = new Array();
  for(var i = y.length-1; i > -1; i--) {
-   p.push(y[i]); 
+   p.push(y[i]);
  }
  return p;
 };
@@ -662,8 +663,8 @@ window.VowelWorm.instance = function(stream) {
   if(stream) {
     this.setStream(stream);
   }
- 
-  for(var name in modules) { 
+
+  for(var name in modules) {
     if(modules.hasOwnProperty(name)) {
       attachModuleToInstance(name, that);
     }
@@ -674,7 +675,7 @@ VowelWorm.instance = window.VowelWorm.instance;
 
 /**
  * The amount the Hanning window needs to be shifted to line up correctly.
- * 
+ *
  * @TODO This should be proportional to the window size.
  *
  * @see {@link VowelWorm.hann}
@@ -814,7 +815,7 @@ VowelWorm.instance.prototype.mode = null;
  *  var saved_data = [];
  *  for(var i = 0; i<fft.length; i++) {
  *    saved_data[i] = fft[i];
- *  } 
+ *  }
  */
 VowelWorm.instance.prototype.getFFT = function(){
   this._analyzer.getFloatFrequencyData(this._buffer);
@@ -981,7 +982,7 @@ VowelWorm.instance.prototype.getFFTSize = function() {
  * Retrieves Mel Frequency Cepstrum Coefficients (MFCCs). For best results,
  * if using preexisting webaudio FFT data (from getFloatFrequencyData), pass
  * your values through {@link VowelWorm.decibelsToLinear} first. If you do not
- * pass in specific FFT data, the default data will be converted to a linear 
+ * pass in specific FFT data, the default data will be converted to a linear
  * magnitude scale anyway.
  *
  * @param {{minFreq: number, maxFreq: number, filterBanks: number, fft: Array.<number>, sampleRate: number, toLinearMagnitude: boolean}} options {@link mfccsOptions}
@@ -1066,12 +1067,12 @@ VowelWorm.instance.prototype.getMFCCs = function(options) {
   var postDCT = [];// Initialise post-discrete cosine transformation vetor array / MFCC Coefficents
 
   for(var i = 0; i<filterBanks.length; i++) {
-    var cel = 0;
+    var cel = .02;
     var n = 0;
     for(var j = 0; j < filterBanks[i].length-1; j++) {
       cel += (filterBanks[i][j]) * fft[n++];
     }
-    preDCT.push(Math.log(cel)); // Compute the log of the spectrum
+    preDCT.push(Math.log(Math.pow(cel ,2))); // Compute the log of the spectrum
   }
 
   // Perform the Discrete Cosine Transformation
@@ -1079,11 +1080,12 @@ VowelWorm.instance.prototype.getMFCCs = function(options) {
     var val = 0;
     var n = 0;
     for (var j = 0; j<preDCT.length; j++) {
-      val += (preDCT[j]) * Math.cos(i * (n++ - 0.5) *  Math.PI / filterBanks.length);
+      val += ((preDCT[j]) * Math.sqrt(2/filterBanks.length) *Math.cos(i*(n++ - 0.5) *  Math.PI / filterBanks.length));
     }
     val /= filterBanks.length;
     postDCT.push(val);
   }
+  console.log(postDCT);
   return postDCT;
 };
 
