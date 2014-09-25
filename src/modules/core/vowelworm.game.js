@@ -57,10 +57,14 @@ window.VowelWorm.Game = function( options ) {
    * @memberof VowelWorm.Game
    * @name play
    */
+  var yes;
   game.play = function(){
     game.drawWorm();
-    window.requestAnimationFrame(game.play);
+    yes=window.setTimeout(game.play, 1);
   };
+  game.paused = function(){
+    clearTimeout(yes);
+  }
 
   /**
    * Inserts a worm into the ever-increasing frenzy of VowelWorm.
@@ -148,10 +152,11 @@ window.VowelWorm.Game = function( options ) {
     });
 
     if(mfccs.length) {
-      var coefficients = mfccs.slice(0,game.coefficients);
-      coefficients[0] = 1;
-      var y = window.VowelWorm.Normalization.regression(coefficients, window.VowelWorm._MFCC_WEIGHTS[game.coefficients].height_no_f0);
-      var x = window.VowelWorm.Normalization.regression(coefficients, window.VowelWorm._MFCC_WEIGHTS[game.coefficients].backness);
+      var inputs = mfccs.slice(0,game.coefficients);
+      console.log(inputs)
+      inputs[0] = 1;
+      var y=window.VowelWorm.Normalization.regression(inputs, window.VowelWorm._MFCC_WEIGHTS[game.coefficients].height_no_f0);
+      var x = window.VowelWorm.Normalization.regression(inputs, window.VowelWorm._MFCC_WEIGHTS[game.coefficients].backness);
       var coords = adjustXAndY(x,y);
       return coords;
     }

@@ -23,22 +23,23 @@ window.VowelWorm.module('draw', function createDrawModule(worm) {
    */
   var AXES_COLOR = 0x000000;
 
+
   /**
-   * Indicates how far away, in pixels, each marker on the X axis must be 
+   * Indicates how far away, in pixels, each marker on the X axis must be
    * from the previous one.
    * @type number
    * @const
    */
   var X_AXIS_DISTANCE = 50;
-  
+
   /**
-   * Indicates how far away, in pixels, each marker on the Y axis must be 
+   * Indicates how far away, in pixels, each marker on the Y axis must be
    * from the previous one.
    * @type number
    * @const
    */
   var Y_AXIS_DISTANCE = 50;
-  
+
   /**
    * How large, in pixels, the tick size of the axes should be
    * @type number
@@ -110,7 +111,7 @@ window.VowelWorm.module('draw', function createDrawModule(worm) {
     });
     yLabel.position.x = 0;
     yLabel.position.y = 0;
-    
+
     var scale = (min-max)/renderer.height; // becomes increasingly negative
     var db_offset = max;
 
@@ -128,7 +129,7 @@ window.VowelWorm.module('draw', function createDrawModule(worm) {
       label.position.y = y - label.height/2; // center it
       axis.addChild(label);
     }
-    
+
     axis.addChild(yLabel);
     stage.addChild(axis);
   };
@@ -152,7 +153,7 @@ window.VowelWorm.module('draw', function createDrawModule(worm) {
      * @const
      */
     var Y_POS_OF_X = renderer.height - 10;
-    
+
     /**
      * Where the tick should extend to
      * @type number
@@ -167,10 +168,10 @@ window.VowelWorm.module('draw', function createDrawModule(worm) {
     xLabel.position.x = X_AXIS_DISTANCE - xLabel.width/2;
     xLabel.position.y = Y_POS_OF_X;
     axis.addChild(xLabel);
-    
+
     // only show half the FFT size, because there are only half as many bins
     var scale = (worm.getFFTSize()/2)/renderer.width;
-    
+
     // x Markers
     for(var x = X_AXIS_DISTANCE; x<renderer.width; x+=X_AXIS_DISTANCE) {
       var tick = new PIXI.Graphics();
@@ -222,29 +223,29 @@ window.VowelWorm.module('draw', function createDrawModule(worm) {
 
     this._renderer.render(this._stage);
   };
-  
+
   this.makeValuesGraphable = function(values){
-    for(var i=0; i<values.length; i++){         
+    for(var i=0; i<values.length; i++){
         values[i] = this.decibelsToPixels(values[i]);
     }
   };
-  
+
   this.decibelsToPixels = function(db){
       var height = this._renderer.height;
       var min = this.minDecibels;
       var max = this.maxDecibels;
-      
-      var b = (height/(min-max))*max;            
+
+      var b = (height/(min-max))*max;
       var y = ((height/(min-max))*db)-b;
-      
-      return y;      
-  
+
+      return y;
+
   };
-  
+
   this.drawDataLines = function(){
 
     var stage    = this._stage;
-    var renderer = this._renderer;     
+    var renderer = this._renderer;
 
     var values = worm.getFFT();
 
@@ -255,7 +256,7 @@ window.VowelWorm.module('draw', function createDrawModule(worm) {
 
     this.makeValuesGraphable(values);
     this.makeValuesGraphable(smoothed_values);
-   
+
     var point_distance = renderer.width/values.length;
 
     //Raw Line
@@ -275,23 +276,23 @@ window.VowelWorm.module('draw', function createDrawModule(worm) {
         stage.removeChild(this.peaks);
     }
     this.peaks = this.drawPeaks(worm.getFormants(),COLOR_BLACK);
-        
+
     renderer.render(stage);
   };
-  
+
   this.drawLine = function(values,color,point_distance){
     var stage = this._stage;
-    
+
     var line = new PIXI.Graphics();
     line.lineStyle(1,color);
     line.moveTo(0,values[0]);
-    
+
     for(var i=0; i<values.length; i++){
         line.lineTo(i*point_distance,values[i]);
     }
-    
+
     stage.addChild(line);
-    
+
     return line;
   };
 
@@ -302,17 +303,17 @@ window.VowelWorm.module('draw', function createDrawModule(worm) {
   this.drawPeaks = function(values,color){
       var stage = this._stage;
       var renderer = this._renderer;
-      
+
       var peaks = new PIXI.Graphics();
       peaks.lineStyle(1,color);
-      
+
       for(var i=0; i<values.length; i++){
           peaks.moveTo(this.hertzToPixels(values[i]),0);
           peaks.lineTo(this.hertzToPixels(values[i]),renderer.height);
       }
 
       stage.addChild(peaks);
-      
+
       return peaks;
   };
 

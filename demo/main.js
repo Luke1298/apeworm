@@ -14,6 +14,7 @@ function usemedia() {
   var audio_els = document.getElementsByClassName('media');
   if(media_on) {
     media_on = false;
+    game.paused();
     media_button.classList.add('fa-play');
     media_button.classList.remove('fa-pause');
     for(var i = 0; i<audio_els.length; i++) {
@@ -25,7 +26,7 @@ function usemedia() {
   media_on = true;
   media_button.classList.remove('fa-play');
   media_button.classList.add('fa-pause');
-  
+
   var worms = [];
 
   function playAll() {
@@ -33,7 +34,7 @@ function usemedia() {
       audio_els[i].play();
     }
   }
-  
+
   var audios_loaded = 0;
   function audioReady() {
     audios_loaded++;

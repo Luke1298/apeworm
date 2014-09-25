@@ -2,6 +2,7 @@
 (function(numeric){
 "use strict";
 
+
 /**
  * @namespace
  * @const
@@ -990,6 +991,7 @@ VowelWorm.instance.prototype.getFFTSize = function() {
  * third values (i.e., a[1] and a[2])
  * @memberof VowelWorm.instance
  */
+
 VowelWorm.instance.prototype.getMFCCs = function(options) {
   var fft = null;
   var toLM = options.toLinearMagnitude === undefined ? true : !!options.toLinearMagnitude;
@@ -1072,9 +1074,8 @@ VowelWorm.instance.prototype.getMFCCs = function(options) {
     for(var j = 0; j < filterBanks[i].length-1; j++) {
       cel += (filterBanks[i][j]) * fft[n++];
     }
-    preDCT.push(Math.log(Math.pow(cel ,2))); // Compute the log of the spectrum
+    preDCT.push(Math.log(Math.pow(cel ,2)));// Compute the log of the spectrum
   }
-
   // Perform the Discrete Cosine Transformation
   for (var i = 0; i < filterBanks.length; i++) {
     var val = 0;
@@ -1085,7 +1086,6 @@ VowelWorm.instance.prototype.getMFCCs = function(options) {
     val /= filterBanks.length;
     postDCT.push(val);
   }
-  console.log(postDCT);
   return postDCT;
 };
 
