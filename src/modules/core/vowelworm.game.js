@@ -15,8 +15,8 @@ window.VowelWorm.Game = function( options ) {
   var game = this;
   game.width = options.width || 700;
   game.height = options.height || 500;
-  game.x1 = 0.92;
-  game.x2 = 1.0;
+  game.x1 = .9198;
+  game.x2 = .99;
   game.y1 = 1.11;
   game.y2 = 1.2;
 
@@ -136,10 +136,9 @@ window.VowelWorm.Game = function( options ) {
       }
     }
   });
-
   var getCoords = function(worm){
+    worm.estimateVowels();
     var buffer = worm.getFFT();
-
     if(isSilent(buffer)) {
       return null;
     }
@@ -153,7 +152,6 @@ window.VowelWorm.Game = function( options ) {
 
     if(mfccs.length) {
       var inputs = mfccs.slice(0,game.coefficients);
-      console.log(inputs)
       inputs[0] = 1;
       var y=window.VowelWorm.Normalization.regression(inputs, window.VowelWorm._MFCC_WEIGHTS[game.coefficients].height_no_f0);
       var x = window.VowelWorm.Normalization.regression(inputs, window.VowelWorm._MFCC_WEIGHTS[game.coefficients].backness);
