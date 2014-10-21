@@ -1069,7 +1069,7 @@ VowelWorm.instance.prototype.getMFCCs = function(options) {
   var postDCT = [];// Initialise post-discrete cosine transformation vetor array / MFCC Coefficents
 
   for(var i = 0; i<filterBanks.length; i++) {
-    var cel = 0.02;
+    var cel = 0;
     var n = 0;
     for(var j = 0; j < filterBanks[i].length-1; j++) {
       cel += (filterBanks[i][j]) * fft[n++];
@@ -1081,7 +1081,7 @@ VowelWorm.instance.prototype.getMFCCs = function(options) {
     var val = 0;
     var n = 0;
     for (var j = 0; j<preDCT.length; j++) {
-      val += ((preDCT[j]) * Math.sqrt(2/filterBanks.length) *Math.cos(i*(n++ - 0.5) *  Math.PI / filterBanks.length));
+      val += ((preDCT[j]) *Math.cos(i*(n++ - 0.5) *  Math.PI / filterBanks.length));
     }
     val /= filterBanks.length;
     postDCT.push(val);
@@ -1090,59 +1090,30 @@ VowelWorm.instance.prototype.getMFCCs = function(options) {
 };
 
 
-VowelWorm.instance.prototype.estimateVowels = function(){
+VowelWorm.instance.prototype.estimateVowels = function(x,y){
   //Returns array of strings matching up with IPA Vowels
   // Let there be some set that alows us to have abritray values (Values that
   // simply are regressed in a none specific manner) for each x in the vowle IPA chart
   // Here we will simply assume that for A x=3 and y=3, for U x=3 and y=1, for O x=3
   // and y=2, for I x=1 y=1, for E x=1.25 y=2
-  var buffer = this.getFFT();
-  var mfccs = this.getMFCCs({
-            minFreq: game.minHz,
-            maxFreq: game.maxHz,
-            filterBanks: game.fb,
-            fft: buffer
-        });
+  var estimate_vowl=[]
+  if ((y>1.5) && (x>1.9) && ((y/x)<.9)){
+    estimate_vowl.push('o')
+  }
+  if ((y>1.8) &&  (x>1.4) && (x<1.6) && ((y/x)>1)){
+    estimate_vowl.push('u')
+  }
+  if ((y<1.5) && (x>1.6)){
+    estimate_vowl.push('a')
+  }
+  if((x<.7) && (y>1.5) && ((y/x)>2)){
+    estimate_vowl.push('i')
+  }
+  if((x<1.3) && (y>1.5) && ((y/x)>2)){
+    estimate_vowl.push('e')
+  }
+  console.log(estimate_vowl)
 
-  if (mfccs.length) {
-      var inputs = mfccs.slice(0, game.coefficients);
-      inputs[0] = 1;
-      }
-  var a_coeff=[135.50, 214.89, -488.38, 141.90, 44.50, 251.90, -76.96, 158.20, -7.10, -90.25, -169.11, 221.70, -259.83, 541.55, -816.60, 590.37, -364.22, 418.30, -218.46, -11.11, -31.57, -457.67, 1010.91, -477.16, 141.70];
-  var e_coeff=[355.15, 423.53, -778.97, -1341.03, 3631.71, -1427.32, 2209.64, -1297.91,1942.60, -1272.67, -611.13, 1525.95, -1892.74, 4000.03, -6870.68, 7042.17, -7376.37, 4948.03, -1594.56, 840.36, 1862.43, -4099.00, 6186.15, -5863.57, 3512.56];
-  var i_coeff=[-4817.92, 3404.26, -5270.89, -12550.34, 30685.93, -29764.67, 23733.95, -14492.95, 2209.52, -1872.02, 1900.22, -9017.05, 14357.40, -5055.20, 9293.38, -10682.21, -7195.41, 13359.57, -14273.03, 20789.61, -24538.99, -9309.98, 28843.28, 1532.57, -8143.34];
-  var o_coeff=[5951.59, -5868.74, 9459.91, 16329.88, -42428.19, 40105.09, -32839.25, 20033.90, -5524.58, 4633.96, -2787.62, 11809.18, -17459.91, 2537.21, -5690.43, 8343.69, 13797.85, -19850.19, 18370.08, -26710.13, 32867.40, 13625.93, -42818.76, 1150.02, 9013.08];
-  var u_coeff=[355.15, 423.53, -778.97, -1341.03, 3631.71, -1427.32, 2209.64, -1297.91, 1942.60, -1272.67, -611.13, 1525.95, -1892.74, 4000.03, -6870.68, 7042.17, -7376.37, 4948.03, -1594.56, 840.36, 1862.43, -4099.00, 6186.15, -5863.57, 3512.56];
-  var sum_a = 0;
-  var sum_e = 0;
-  var sum_i = 0;
-  var sum_o = 0;
-  var sum_u = 0;
-  for(var i = 0; i<a_coeff.length; i++) {
-      sum_a += a_coeff[i]*inputs[i];
-      sum_e += e_coeff[i]*inputs[i];
-      sum_i += i_coeff[i]*inputs[i];
-      sum_o += o_coeff[i]*inputs[i];
-      sum_u += u_coeff[i]*inputs[i];
-  };
-  console.log(sum_i)
-  /*var ret=[];
-  if ((sum_y>-28) && (sum_y<23) && (sum_x>-30) && (sum_x<48)){
-    ret.push('I');
-  }
-  if ((sum_y>-18.434814129433548) && (sum_y<30.469925602072628) && (sum_x<49.911465093504845) && (sum_x>-42.203112893268305)){
-    ret.push('O');
-  }
-  if ((sum_x<0.009157285450102451) && (sum_x>-0.005028984212634317) && (sum_y<0.004750864209019686) && (sum_y>-0.0026219802621429296)){
-    ret.push('U');
-  }
-  if ((sum_y<0.004961879057268158) && (sum_y>-0.010617595372931672) && (sum_x<0.008117962429947024) && (sum_x>-0.024645431488853498)){
-    ret.push('A');
-  }
-  if ((sum_y<0.004961879057268158) && (sum_y>-0.010617595372931672) && (sum_x<0.007931612738921814) && (sum_x>-0.04626366710688999)){
-    ret.push('E');
-  }
-  console.log(ret);*/
 }
 /**
  * Retrieves formants. Uses the current time of the audio file or stream,
